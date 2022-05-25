@@ -98,6 +98,7 @@ public class MainController {
     }
     public void increaseYaz(){
        if (isIsFileExist()) {
+           //shaked cool
            bank.timeAdvancement();
            time.set(bank.getTime());
            adminBodyComponentController.displayInfo(bank.getLoans(), bank.getCustomers());
