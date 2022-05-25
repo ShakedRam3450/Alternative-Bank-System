@@ -261,19 +261,13 @@ public class BankImpl implements Bank {
             activeLoans.put(loan.getId(), loan);
         }
     }
-    public void timeAdvancement(){
+    public Map<String, LoanDTO> timeAdvancement(){
         time++;
-        Map<Integer, List<Loan>> needToPayLoans = getNeedToPayLoans();
+        Map<String, Loan> needToPayLoans = getNeedToPayLoans();
+        Map<String, LoanDTO> needToPayLoansDTO = new HashMap<>();
 
-        //sort each loan list by payment amount
-        for (List<Loan> loans: needToPayLoans.values())
-            loans.sort(Comparator.comparingDouble(Loan::getOnePaymentAmount));
-
-        //sort key list
-        List<Integer> keyList = new ArrayList<>(needToPayLoans.keySet());
-        Collections.sort(keyList);
-
-        payLoans(needToPayLoans, keyList);
+        needToPayLoans.forEach((k,v) -> needToPayLoansDTO.put(k, new LoanDTO(v)));
+        return needToPayLoansDTO;
 
     }
     private void payLoans(Map<Integer, List<Loan>> needToPayLoans, List<Integer> keyList){
@@ -302,24 +296,21 @@ public class BankImpl implements Bank {
             }
         }
     }
-    private Map<Integer, List<Loan>> getNeedToPayLoans(){
-        Map<Integer, List<Loan>> needToPayLoans = new HashMap<>();//key=loan startTime
+    private Map<String, Loan> getNeedToPayLoans(){
+        Map<String, Loan> needToPayLoans = new HashMap<>();
 
-        for (Loan loan: activeLoans.values()){
-            if(loan.isTimeToPay(time)){
-                if(!needToPayLoans.containsKey(loan.getStartTime()))
-                    needToPayLoans.put(loan.getStartTime(), new ArrayList<>());
-                needToPayLoans.get(loan.getStartTime()).add(loan);
-            }
-        }
-        for (Loan loan: inRiskLoans.values()){
-            if(loan.isTimeToPay(time)){
-                if(!needToPayLoans.containsKey(loan.getStartTime()))
-                    needToPayLoans.put(loan.getStartTime(), new ArrayList<>());
-                needToPayLoans.get(loan.getStartTime()).add(loan);
-            }
-        }
+        activeLoans.forEach((k,v) -> {
+            if(v.isTimeToPay(time))
+                needToPayLoans.put(k,v);
+        });
+
+        inRiskLoans.forEach((k,v) -> {
+            if(v.isTimeToPay(time))
+                needToPayLoans.put(k,v);
+        });
+
         return needToPayLoans;
+
     }
 }
 

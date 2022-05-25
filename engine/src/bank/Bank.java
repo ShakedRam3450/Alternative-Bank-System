@@ -36,5 +36,5 @@ public interface Bank {
 
     void placementActivation(String chosenCustomer, List<LoanDTO> chosenLoans, int amount, int maxOwnership);
 
-    void timeAdvancement();
+    Map<String, LoanDTO> timeAdvancement();
 }

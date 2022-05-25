@@ -5,6 +5,7 @@ import body.customer.payment.PaymentController;
 import body.customer.scramble.ScrambleController;
 import dto.CustomerDTO;
 import dto.LoanDTO;
+import dto.NotificationDTO;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
@@ -12,6 +13,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
+import loan.Loan;
 import main.MainController;
 import resources.Resources;
 
@@ -33,9 +35,9 @@ public class CustomerBodyController {
     @FXML private Label balanceLabel;
 
     private CustomerDTO customer;
-
+    private Map<String, List<LoanDTO>> notifications;
     public CustomerBodyController() {
-
+        notifications = new HashMap<>();
     }
 
     @FXML
@@ -53,6 +55,7 @@ public class CustomerBodyController {
         infoComponentController.setCustomer(customer);
         paymentComponentController.setLoansTable();
         this.balanceLabel.setText(((Double)customer.getBalance()).toString());
+        paymentComponentController.setNotificationsTable(mainController.getCustomerNotifications(customer.getName()));
     }
 
     public CustomerDTO getCustomer() {
@@ -94,4 +97,6 @@ public class CustomerBodyController {
     public void placementActivation(List<LoanDTO> selectedLoans, int amount, int maxOwnership) {
         mainController.placementActivation(customer.getName(), selectedLoans, amount, maxOwnership);
     }
+
+
 }

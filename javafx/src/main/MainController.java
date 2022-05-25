@@ -6,6 +6,7 @@ import body.admin.AdminBodyController;
 import body.customer.CustomerBodyController;
 import dto.CustomerDTO;
 import dto.LoanDTO;
+import dto.NotificationDTO;
 import exceptions.*;
 import header.HeaderController;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -30,9 +31,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class MainController {
 
@@ -51,11 +50,14 @@ public class MainController {
 
     private Bank bank;
     private Stage primaryStage;
+    private Map<String, List<NotificationDTO>> customersNotifications ;// key = customer name
 
-   public MainController(){
+    public MainController(){
         bank = new BankImpl();
         isFileExist = new SimpleBooleanProperty();
         time = new SimpleIntegerProperty(1);
+        customersNotifications = new HashMap<>();
+        bank.getCustomers().forEach((k,v) -> customersNotifications.put(k, new ArrayList<>()));
     }
     @FXML
     public void initialize() throws IOException {
@@ -98,11 +100,18 @@ public class MainController {
     }
     public void increaseYaz(){
        if (isIsFileExist()) {
-           //shaked cool
-           bank.timeAdvancement();
+           Map<String, LoanDTO> needToPayLoans = bank.timeAdvancement();
            time.set(bank.getTime());
            adminBodyComponentController.displayInfo(bank.getLoans(), bank.getCustomers());
+           addNotifications(needToPayLoans);
        }
+    }
+
+    private void addNotifications(Map<String, LoanDTO> needToPayLoans) {
+        needToPayLoans.forEach((loanId ,loanDTO) -> customersNotifications.get(loanDTO.getOwnerName()).add(new NotificationDTO(loanDTO, time.get())));
+    }
+    public List<NotificationDTO> getCustomerNotifications(String name) {
+        return this.customersNotifications.get(name);
     }
     public void changeUser(String userName) throws IOException {
         if (userName != null) {
@@ -245,4 +254,6 @@ public class MainController {
         customerBodyComponentController.setCustomer(bank.getCustomers().get(name));
         adminBodyComponentController.displayInfo(bank.getLoans(), bank.getCustomers());
     }
+
+
 }
