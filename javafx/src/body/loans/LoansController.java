@@ -167,4 +167,5 @@ public class LoansController {
     public void clear() {
         loansTable.getColumns().clear();
     }
+
 }

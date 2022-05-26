@@ -98,5 +98,7 @@ public class CustomerBodyController {
         mainController.placementActivation(customer.getName(), selectedLoans, amount, maxOwnership);
     }
 
-
+    public int getTime() {
+        return mainController.getTime();
+    }
 }

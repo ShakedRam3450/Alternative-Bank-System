@@ -57,7 +57,7 @@ public class MainController {
         isFileExist = new SimpleBooleanProperty();
         time = new SimpleIntegerProperty(1);
         customersNotifications = new HashMap<>();
-        bank.getCustomers().forEach((k,v) -> customersNotifications.put(k, new ArrayList<>()));
+
     }
     @FXML
     public void initialize() throws IOException {
@@ -141,6 +141,7 @@ public class MainController {
             headerComponentController.displayFilePath(path);
             headerComponentController.initCustomers(bank.getCustomers());
             customerBodyComponentController.setCategories(bank.getCategories());
+            bank.getCustomers().forEach((k,v) -> customersNotifications.put(k, new ArrayList<>()));
             isFileExist.set(true);
         } catch (Exception e) {
             showPopUpError(getErrorMassage(e));
@@ -254,6 +255,7 @@ public class MainController {
         customerBodyComponentController.setCustomer(bank.getCustomers().get(name));
         adminBodyComponentController.displayInfo(bank.getLoans(), bank.getCustomers());
     }
-
-
+    public int getTime() {
+        return time.get();
+    }
 }

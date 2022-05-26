@@ -184,4 +184,16 @@ public class Loan {
             investor.receiveMoney(time, getOnePaymentAmount() + debt);
         }*/
     }
+    public void activeToInRisk() {
+        status = IN_RISK;
+        debt += getOnePaymentAmount();
+    }
+
+    public boolean isLateToPay(int curTime) {
+        if ((curTime - startTime) % paysEveryYaz == 1 && curTime - startTime != 1) {
+            if (getLastPaymentTime() != curTime - 1)
+                return true;
+        }
+        return false;
+    }
 }

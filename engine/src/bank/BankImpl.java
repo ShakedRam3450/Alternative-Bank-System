@@ -266,10 +266,25 @@ public class BankImpl implements Bank {
         Map<String, Loan> needToPayLoans = getNeedToPayLoans();
         Map<String, LoanDTO> needToPayLoansDTO = new HashMap<>();
 
+        checkIfLate(needToPayLoans);
+
         needToPayLoans.forEach((k,v) -> needToPayLoansDTO.put(k, new LoanDTO(v)));
         return needToPayLoansDTO;
 
     }
+
+    private void checkIfLate(Map<String, Loan> needToPayLoans) {
+       needToPayLoans.forEach((loanId, loan) ->{
+           if(loan.getStatus().equals(ACTIVE) && loan.isLateToPay(this.time)){
+               activeLoans.remove(loanId);
+               loan.activeToInRisk();
+               inRiskLoans.put(loanId,loan);
+           }
+       });
+
+
+    }
+
     private void payLoans(Map<Integer, List<Loan>> needToPayLoans, List<Integer> keyList){
         Loan.Status prevStatus;
 
