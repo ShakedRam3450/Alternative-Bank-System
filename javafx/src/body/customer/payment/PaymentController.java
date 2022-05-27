@@ -70,16 +70,20 @@ public class PaymentController {
         try {
             LoanDTO selectedLoan = getSelectedLoan();
             Toggle selectedBTN = paymentOptions.getSelectedToggle();
+            int curTime = customerBodyController.getTime();
 
             if (selectedBTN == onePaymentRBTN){
-                if(!selectedLoan.isTimeToPay(customerBodyController.getTime()))
+                if(!selectedLoan.isTimeToPay(curTime)) //not time to pay
                     throw new Exception();
 
-                //PAY LOAN
+                if (selectedLoan.getLastPaymentTime() == curTime) //already paid this payment
+                    throw new Exception();
+
+                customerBodyController.payOnePayment(selectedLoan);
             }
             else if (selectedBTN == payAllLoanRBTN){
 
-                //PAY ALL LOAN
+                customerBodyController.payAllLoan(selectedLoan);
             }
             else if (selectedBTN == payDebtRBTN){
                 if(!selectedLoan.getStatus().equals(Loan.Status.IN_RISK))
@@ -94,6 +98,7 @@ public class PaymentController {
 
         }catch (Exception e){
             errorLabel.setText("error");
+            System.out.println("error");
         }
 
     }

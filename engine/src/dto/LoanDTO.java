@@ -181,6 +181,6 @@ public class LoanDTO {
         return (getInterestPart() * (totalYazTime/paysEveryYaz)) - getTotalInterestPaid();
     }
     public boolean isTimeToPay(int curTime){
-        return (curTime - startTime) % paysEveryYaz == 0;
+        return (curTime - startTime) % paysEveryYaz == 0 && curTime - startTime != 0;
     }
 }

@@ -272,7 +272,46 @@ public class BankImpl implements Bank {
         return needToPayLoansDTO;
 
     }
+    public void payOnePayment(LoanDTO selectedLoan){
+        String loanId = selectedLoan.getId();
+        Loan.Status prevStatus = selectedLoan.getStatus();
 
+        if (selectedLoan.getStatus().equals(ACTIVE)) {
+            activeLoans.get(loanId).pay(selectedLoan.getOnePaymentAmount(), selectedLoan.getCapitalPart(), selectedLoan.getInterestPart(), time);
+        }
+        else{
+            inRiskLoans.get(loanId).pay(selectedLoan.getOnePaymentAmount(), selectedLoan.getCapitalPart(), selectedLoan.getInterestPart(), time);
+        }
+        checkIfLoanFinished(prevStatus, loanId);
+    }
+
+    public void payAllLoan(LoanDTO selectedLoan){
+        double totalCapitalRemaining = selectedLoan.getTotalCapitalRemaining();
+        double totalInterestRemaining = selectedLoan.getTotalInterestRemaining();
+        double totalAmountRemaining = totalCapitalRemaining + totalInterestRemaining;
+        Loan.Status prevStatus = selectedLoan.getStatus();
+
+        if (selectedLoan.getStatus().equals(ACTIVE))
+            activeLoans.get(selectedLoan.getId()).pay(totalAmountRemaining, totalCapitalRemaining, totalInterestRemaining, time);
+        else
+            inRiskLoans.get(selectedLoan.getId()).pay(totalAmountRemaining + selectedLoan.getDebt(),totalCapitalRemaining, totalInterestRemaining, time);
+
+        checkIfLoanFinished(prevStatus, selectedLoan.getId());
+    }
+    private void checkIfLoanFinished(Loan.Status prevStatus, String loanId) {
+        if(prevStatus.equals(ACTIVE)){
+            if(activeLoans.get(loanId).getStatus().equals(FINISHED)){
+                finishedLoans.put(loanId, activeLoans.get(loanId));
+                activeLoans.remove(loanId);
+            }
+        }
+        else if(prevStatus.equals(IN_RISK)){
+            if(inRiskLoans.get(loanId).getStatus().equals(FINISHED)){
+                finishedLoans.put(loanId, inRiskLoans.get(loanId));
+                inRiskLoans.remove(loanId);
+            }
+        }
+    }
     private void checkIfLate(Map<String, Loan> needToPayLoans) {
        needToPayLoans.forEach((loanId, loan) ->{
            if(loan.getStatus().equals(ACTIVE) && loan.isLateToPay(this.time)){
@@ -284,8 +323,7 @@ public class BankImpl implements Bank {
 
 
     }
-
-    private void payLoans(Map<Integer, List<Loan>> needToPayLoans, List<Integer> keyList){
+    /*private void payLoans(Map<Integer, List<Loan>> needToPayLoans, List<Integer> keyList){
         Loan.Status prevStatus;
 
         for (Integer key: keyList) {
@@ -310,7 +348,7 @@ public class BankImpl implements Bank {
                 }
             }
         }
-    }
+    }*/
     private Map<String, Loan> getNeedToPayLoans(){
         Map<String, Loan> needToPayLoans = new HashMap<>();
 

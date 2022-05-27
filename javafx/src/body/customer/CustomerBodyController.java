@@ -101,4 +101,12 @@ public class CustomerBodyController {
     public int getTime() {
         return mainController.getTime();
     }
+
+    public void payOnePayment(LoanDTO selectedLoan) {
+        mainController.payOnePayment(selectedLoan);
+    }
+
+    public void payAllLoan(LoanDTO selectedLoan) {
+        mainController.payAllLoan(selectedLoan);
+    }
 }

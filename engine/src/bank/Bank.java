@@ -37,4 +37,8 @@ public interface Bank {
     void placementActivation(String chosenCustomer, List<LoanDTO> chosenLoans, int amount, int maxOwnership);
 
     Map<String, LoanDTO> timeAdvancement();
+
+    void payOnePayment(LoanDTO selectedLoan);
+
+    void payAllLoan(LoanDTO selectedLoan);
 }

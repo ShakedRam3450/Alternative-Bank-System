@@ -258,4 +258,16 @@ public class MainController {
     public int getTime() {
         return time.get();
     }
+
+    public void payOnePayment(LoanDTO selectedLoan) {
+        bank.payOnePayment(selectedLoan);
+        customerBodyComponentController.setCustomer(bank.getCustomers().get(selectedLoan.getOwnerName()));
+        adminBodyComponentController.displayInfo(bank.getLoans(), bank.getCustomers());
+    }
+
+    public void payAllLoan(LoanDTO selectedLoan) {
+        bank.payAllLoan(selectedLoan);
+        customerBodyComponentController.setCustomer(bank.getCustomers().get(selectedLoan.getOwnerName()));
+        adminBodyComponentController.displayInfo(bank.getLoans(), bank.getCustomers());
+    }
 }

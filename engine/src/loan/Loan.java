@@ -153,17 +153,13 @@ public class Loan {
     public double getInterestPart(){
         return ((double)interestPerPayment / 100) * getCapitalPart();
     }
-    public boolean pay(int time){
-        if(!owner.withdrawal(getOnePaymentAmount() + debt, time)){ //failed to pay
-            status = IN_RISK;
-            debt += getOnePaymentAmount();
+    public boolean pay(double amount, double capitalPart, double interestPart, int time){
+        if(!owner.withdrawal(amount, time)){ //failed to pay
             return false;
         }
         //succeeded to pay
-        payments.put(time, new Payment(time, getCapitalPart() * (getNumberOfUnpaidPayments() + 1), getInterestPart() * (getNumberOfUnpaidPayments() + 1),  getOnePaymentAmount() + debt));
-        payInvestors(time);
-        debt = 0;
-        status = ACTIVE;
+        payments.put(time, new Payment(time, capitalPart, interestPart,  amount));
+        payInvestors(amount, time);
 
         if(isLoanFinished()){
             status = FINISHED;
@@ -178,11 +174,9 @@ public class Loan {
             totalPaid += payment.getTotalAmount();
         return totalNeedToPay == totalPaid;
     }
-    private void payInvestors(int time){
-        investors.values().forEach(investor -> investor.receiveMoney(time, getOnePaymentAmount() + debt));
-        /*for (Investor investor: investors.values()){
-            investor.receiveMoney(time, getOnePaymentAmount() + debt);
-        }*/
+    private void payInvestors(double amount, int time){
+        investors.values().forEach(investor -> investor.receiveMoney(time, amount));
+
     }
     public void activeToInRisk() {
         status = IN_RISK;

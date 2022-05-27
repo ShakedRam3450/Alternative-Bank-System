@@ -34,7 +34,7 @@
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                </HBox.margin>
             </RadioButton>
-            <RadioButton fx:id="payDebtRBTN" mnemonicParsing="false" text="Pay debt">
+            <RadioButton fx:id="payDebtRBTN" mnemonicParsing="false" text="Pay debt:">
                <HBox.margin>
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                </HBox.margin>
@@ -49,7 +49,7 @@
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                </HBox.margin>
             </Button>
-            <Label text="#error label">
+            <Label fx:id="errorLabel" text="#error label">
                <font>
                   <Font size="18.0" />
                </font>
