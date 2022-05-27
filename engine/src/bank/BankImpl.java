@@ -266,7 +266,7 @@ public class BankImpl implements Bank {
         Map<String, Loan> needToPayLoans = getNeedToPayLoans();
         Map<String, LoanDTO> needToPayLoansDTO = new HashMap<>();
 
-        checkIfLate(needToPayLoans);
+        checkIfLateToPay();
 
         needToPayLoans.forEach((k,v) -> needToPayLoansDTO.put(k, new LoanDTO(v)));
         return needToPayLoansDTO;
@@ -284,7 +284,6 @@ public class BankImpl implements Bank {
         }
         checkIfLoanFinished(prevStatus, loanId);
     }
-
     public void payAllLoan(LoanDTO selectedLoan){
         double totalCapitalRemaining = selectedLoan.getTotalCapitalRemaining();
         double totalInterestRemaining = selectedLoan.getTotalInterestRemaining();
@@ -297,6 +296,19 @@ public class BankImpl implements Bank {
             inRiskLoans.get(selectedLoan.getId()).pay(totalAmountRemaining + selectedLoan.getDebt(),totalCapitalRemaining, totalInterestRemaining, time);
 
         checkIfLoanFinished(prevStatus, selectedLoan.getId());
+    }
+    public void payDebt(LoanDTO selectedLoan, double amount){
+        Loan loan = inRiskLoans.get(selectedLoan.getId());
+        if(loan.getOwner().withdrawal(Math.min(amount, selectedLoan.getDebt()), time)) {
+            loan.payDebt(Math.min(amount, selectedLoan.getDebt()), this.time);
+
+            if(loan.getStatus().equals(ACTIVE)){
+                activeLoans.put(loan.getId(), loan);
+                inRiskLoans.remove(loan.getId());
+            }
+        }
+        else
+            System.out.println("amount is bigger than balance");
     }
     private void checkIfLoanFinished(Loan.Status prevStatus, String loanId) {
         if(prevStatus.equals(ACTIVE)){
@@ -312,14 +324,24 @@ public class BankImpl implements Bank {
             }
         }
     }
-    private void checkIfLate(Map<String, Loan> needToPayLoans) {
-       needToPayLoans.forEach((loanId, loan) ->{
-           if(loan.getStatus().equals(ACTIVE) && loan.isLateToPay(this.time)){
-               activeLoans.remove(loanId);
-               loan.activeToInRisk();
+    private void checkIfLateToPay() {
+        List<String> toInRiskKeys = new ArrayList<>();
+
+        //IN RISK loans
+        inRiskLoans.forEach((loanId, loan) -> {
+            if(loan.isLateToPay(this.time))
+                loan.missedPayment();
+        });
+
+        //ACTIVE loans
+       activeLoans.forEach((loanId, loan) ->{
+           if(loan.isLateToPay(this.time)){
+               toInRiskKeys.add(loanId);
+               loan.missedPayment();
                inRiskLoans.put(loanId,loan);
            }
        });
+       toInRiskKeys.forEach(loadId -> activeLoans.remove(loadId));
 
 
     }

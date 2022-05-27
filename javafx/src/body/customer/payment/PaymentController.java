@@ -90,8 +90,7 @@ public class PaymentController {
                     throw new Exception();
                 double amount = getAmount();
 
-
-                //PAY DEBT
+                customerBodyController.payDebt(selectedLoan, amount);
             }
             else
                 throw new Exception();
@@ -104,14 +103,13 @@ public class PaymentController {
     }
 
     private double getAmount() {
+        double res = 0;
         try {
-            return Double.parseDouble(payDebtTF.getText());
+            res = Double.parseDouble(payDebtTF.getText());
         }catch (Exception e){
             System.out.println("not double");
         }
-        finally {
-            return 0;
-        }
+        return res;
     }
 
     private LoanDTO getSelectedLoan() throws Exception {

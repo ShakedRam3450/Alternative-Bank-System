@@ -109,4 +109,8 @@ public class CustomerBodyController {
     public void payAllLoan(LoanDTO selectedLoan) {
         mainController.payAllLoan(selectedLoan);
     }
+
+    public void payDebt(LoanDTO selectedLoan, double amount) {
+        mainController.payDebt(selectedLoan, amount);
+    }
 }

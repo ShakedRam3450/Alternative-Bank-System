@@ -23,6 +23,8 @@ public class Loan {
     private int endTime; //FINISHED
     private Map<Integer, Payment> payments; //key = yazTime
 
+
+
     public enum Status{
         NEW, PENDING, ACTIVE, IN_RISK, FINISHED;
     }
@@ -178,16 +180,20 @@ public class Loan {
         investors.values().forEach(investor -> investor.receiveMoney(time, amount));
 
     }
-    public void activeToInRisk() {
+    public void missedPayment() {
         status = IN_RISK;
         debt += getOnePaymentAmount();
     }
 
     public boolean isLateToPay(int curTime) {
-        if ((curTime - startTime) % paysEveryYaz == 1 && curTime - startTime != 1) {
-            if (getLastPaymentTime() != curTime - 1)
-                return true;
-        }
-        return false;
+        //if yesterday need to pay AND last payment was not yesterday AND yesterday was not start time
+        return isTimeToPay(curTime - 1) && getLastPaymentTime() != curTime - 1 && startTime != curTime -1;
+    }
+    public void payDebt(double amount, int time) {
+        debt -= amount;
+        if(debt == 0)
+            status = ACTIVE;
+
+        payInvestors(amount, time);
     }
 }

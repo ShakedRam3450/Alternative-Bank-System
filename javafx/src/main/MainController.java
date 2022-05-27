@@ -270,4 +270,10 @@ public class MainController {
         customerBodyComponentController.setCustomer(bank.getCustomers().get(selectedLoan.getOwnerName()));
         adminBodyComponentController.displayInfo(bank.getLoans(), bank.getCustomers());
     }
+
+    public void payDebt(LoanDTO selectedLoan, double amount) {
+        bank.payDebt(selectedLoan, amount);
+        customerBodyComponentController.setCustomer(bank.getCustomers().get(selectedLoan.getOwnerName()));
+        adminBodyComponentController.displayInfo(bank.getLoans(), bank.getCustomers());
+    }
 }

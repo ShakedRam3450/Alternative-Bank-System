@@ -41,4 +41,6 @@ public interface Bank {
     void payOnePayment(LoanDTO selectedLoan);
 
     void payAllLoan(LoanDTO selectedLoan);
+
+    void payDebt(LoanDTO selectedLoan, double amount);
 }
