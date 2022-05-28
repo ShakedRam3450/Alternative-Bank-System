@@ -123,9 +123,13 @@ public class Loan {
             return 0;
         return Collections.max(payments.keySet());
     }
-
+    public Loan.Status getLastPaymentStatus() {
+        if (payments.isEmpty())
+            return null;
+        return payments.get(Collections.max(payments.keySet())).getStatus();
+    }
     public int getNumberOfUnpaidPayments(){
-        return (int) (debt/getOnePaymentAmount());
+         return (int) Math.ceil(debt/getOnePaymentAmount());
     }
     public void invest(Customer investor, int amount, int currentTime){
         amountRemaining -= amount;
@@ -160,7 +164,12 @@ public class Loan {
             return false;
         }
         //succeeded to pay
-        payments.put(time, new Payment(time, capitalPart, interestPart,  amount));
+        if(payments.containsKey(time)){
+            payments.get(time).addToPayment(capitalPart, interestPart,  amount, ACTIVE);
+        }
+        else
+            payments.put(time, new Payment(time, capitalPart, interestPart,  amount, ACTIVE));
+
         payInvestors(amount, time);
 
         if(isLoanFinished()){
@@ -184,16 +193,25 @@ public class Loan {
         status = IN_RISK;
         debt += getOnePaymentAmount();
     }
-
     public boolean isLateToPay(int curTime) {
         //if yesterday need to pay AND last payment was not yesterday AND yesterday was not start time
         return isTimeToPay(curTime - 1) && getLastPaymentTime() != curTime - 1 && startTime != curTime -1;
     }
     public void payDebt(double amount, int time) {
+        int numberOfUnpaidPayments= getNumberOfUnpaidPayments();
+
+        if(payments.containsKey(time))
+            payments.get(time).addToTotalAmount(amount);
+        else
+            payments.put(time, new Payment(time, numberOfUnpaidPayments * getCapitalPart(), numberOfUnpaidPayments * getInterestPart(),  amount, IN_RISK));
+
+        payInvestors(amount, time);
+
         debt -= amount;
+
         if(debt == 0)
             status = ACTIVE;
 
-        payInvestors(amount, time);
+
     }
 }

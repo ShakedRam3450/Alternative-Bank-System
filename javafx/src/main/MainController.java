@@ -259,7 +259,7 @@ public class MainController {
         return time.get();
     }
 
-    public void payOnePayment(LoanDTO selectedLoan) {
+    public void payOnePayment(LoanDTO selectedLoan) throws Exception {
         bank.payOnePayment(selectedLoan);
         customerBodyComponentController.setCustomer(bank.getCustomers().get(selectedLoan.getOwnerName()));
         adminBodyComponentController.displayInfo(bank.getLoans(), bank.getCustomers());

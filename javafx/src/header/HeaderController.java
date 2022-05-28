@@ -17,6 +17,7 @@ import java.util.Map;
 public class HeaderController {
 
     @FXML private ComboBox<String> userCB;
+    @FXML private ComboBox<String> skinCB;
     @FXML private Label filePath;
     @FXML private Label time;
 
@@ -31,6 +32,9 @@ public class HeaderController {
         userCB.setValue("Admin");
         userCB.getItems().add("Admin");
         time.setText("1");
+
+        skinCB.setValue("default");
+        skinCB.getItems().addAll("default", "cool", "veryCool");
 
     }
 

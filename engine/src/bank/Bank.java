@@ -38,7 +38,7 @@ public interface Bank {
 
     Map<String, LoanDTO> timeAdvancement();
 
-    void payOnePayment(LoanDTO selectedLoan);
+    void payOnePayment(LoanDTO selectedLoan) throws Exception;
 
     void payAllLoan(LoanDTO selectedLoan);
 

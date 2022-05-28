@@ -11,6 +11,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.Background;
 import javafx.scene.layout.VBox;
 import org.controlsfx.control.MasterDetailPane;
 
@@ -79,6 +80,9 @@ public class LoansController {
             loansDetails.getChildren().clear();
             loansDetails.getChildren().add(new Label((statusDisplay(loansTable.getSelectionModel().getSelectedItem())).toString()));
         });
+
+
+
     }
     private StringBuilder statusDisplay(LoanDTO loan){
         StringBuilder res = new StringBuilder();
@@ -110,9 +114,9 @@ public class LoansController {
                 res.append("Start time: ").append(loan.getStartTime()).append("\n");
                 res.append("Next payment time: ");
                 if(loan.getPayments().isEmpty())
-                    res.append(loan.getStartTime() + (loan.getPaysEveryYaz() * loan.getNumberOfUnpaidPayments())).append("\n");
+                    res.append(loan.getStartTime() + (loan.getPaysEveryYaz() * (loan.getNumberOfUnpaidPayments() + 1))).append("\n");
                 else
-                    res.append(loan.getLastPaymentTime() + (loan.getPaysEveryYaz() * loan.getNumberOfUnpaidPayments())).append("\n");
+                    res.append(loan.getLastPaymentTime() + (loan.getPaysEveryYaz() * (loan.getNumberOfUnpaidPayments() + 1))).append("\n");
                 res.append(paymentsDisplay(loan));
                 res.append("Total capital paid: ").append(loan.getTotalCapitalPaid()).append("\n");
                 res.append("Total interest paid: ").append(loan.getTotalInterestPaid()).append("\n");

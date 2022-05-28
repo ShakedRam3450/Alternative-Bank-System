@@ -102,7 +102,7 @@ public class CustomerBodyController {
         return mainController.getTime();
     }
 
-    public void payOnePayment(LoanDTO selectedLoan) {
+    public void payOnePayment(LoanDTO selectedLoan) throws Exception {
         mainController.payOnePayment(selectedLoan);
     }
 

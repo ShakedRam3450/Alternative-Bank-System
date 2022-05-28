@@ -76,10 +76,7 @@ public class PaymentController {
                 if(!selectedLoan.isTimeToPay(curTime)) //not time to pay
                     throw new Exception();
 
-                if (selectedLoan.getLastPaymentTime() == curTime) //already paid this payment
-                    throw new Exception();
-
-                customerBodyController.payOnePayment(selectedLoan);
+                customerBodyController.payOnePayment(selectedLoan); // throws exception
             }
             else if (selectedBTN == payAllLoanRBTN){
 
@@ -89,7 +86,7 @@ public class PaymentController {
                 if(!selectedLoan.getStatus().equals(Loan.Status.IN_RISK))
                     throw new Exception();
                 double amount = getAmount();
-
+                payDebtTF.setText("");
                 customerBodyController.payDebt(selectedLoan, amount);
             }
             else
@@ -106,6 +103,7 @@ public class PaymentController {
         double res = 0;
         try {
             res = Double.parseDouble(payDebtTF.getText());
+
         }catch (Exception e){
             System.out.println("not double");
         }

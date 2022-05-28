@@ -150,6 +150,7 @@ public class LoanDTO {
             return 0;
         return Collections.max(payments.keySet());
     }
+
     public double getOnePaymentAmount(){
         return getCapitalPart() + getInterestPart();
     }
@@ -160,7 +161,8 @@ public class LoanDTO {
         return ((double)interestPerPayment / 100) * getCapitalPart();
     }
     public int getNumberOfUnpaidPayments(){
-        return (int) (debt/getOnePaymentAmount());
+         int res = (int) Math.ceil(debt/getOnePaymentAmount());
+         return res;
     }
     public double getTotalCapitalPaid(){
         double res = 0;

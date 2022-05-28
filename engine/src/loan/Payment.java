@@ -5,12 +5,14 @@ public class Payment {
     private double capitalPart;
     private double interestPart;
     private double totalAmount;
+    private Loan.Status status;
 
-    public Payment(int time,double capitalPart,double interestPart,double totalAmount){
+    public Payment(int time, double capitalPart, double interestPart, double totalAmount, Loan.Status status){
         this.time = time;
         this.capitalPart = capitalPart;
         this.interestPart = interestPart;
         this.totalAmount = totalAmount;
+        this.status = status;
     }
 
     @Override
@@ -35,5 +37,20 @@ public class Payment {
 
     public int getTime() {
         return time;
+    }
+
+    public void addToTotalAmount(double amount){
+        totalAmount += amount;
+    }
+
+    public Loan.Status getStatus() {
+        return status;
+    }
+
+    public void addToPayment(double capitalPart, double interestPart, double amount, Loan.Status status) {
+        this.status = status;
+        this.totalAmount += amount;
+        this.capitalPart += capitalPart;
+        this.interestPart += interestPart;
     }
 }

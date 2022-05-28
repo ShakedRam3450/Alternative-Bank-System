@@ -32,6 +32,10 @@ public class BankApp extends Application {
         mainController.setMainComponent((BorderPane) root.getContent());
 
         Scene scene = new Scene(root);
+
+        scene.getStylesheets().add(
+                getClass().getResource("main.css").toExternalForm());
+
         primaryStage.setScene(scene);
         primaryStage.show();
 

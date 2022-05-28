@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import customer.Customer;
 import dto.CustomerDTO;
 import dto.LoanDTO;
+import dto.PaymentDTO;
 import exceptions.*;
 import file.FileChecker;
 import generated.AbsCustomer;
@@ -124,13 +125,7 @@ public class BankImpl implements Bank {
         res.addAll(loanCollectionToLoanDTOList(inRiskLoans.values()));
         res.addAll(loanCollectionToLoanDTOList(finishedLoans.values()));
         return res;
-        /*List<Loan> res = new ArrayList<>();
-        res.addAll(newLoans.values());
-        res.addAll(pendingLoans.values());
-        res.addAll(activeLoans.values());
-        res.addAll(inRiskLoans.values());
-        res.addAll(finishedLoans.values());
-        return res;*/
+
 
     }
     private List<LoanDTO> loanCollectionToLoanDTOList(Collection<Loan> list){
@@ -272,9 +267,12 @@ public class BankImpl implements Bank {
         return needToPayLoansDTO;
 
     }
-    public void payOnePayment(LoanDTO selectedLoan){
+    public void payOnePayment(LoanDTO selectedLoan) throws Exception {
         String loanId = selectedLoan.getId();
         Loan.Status prevStatus = selectedLoan.getStatus();
+
+        if (selectedLoan.getLastPaymentTime() == time && activeLoans.get(loanId).getLastPaymentStatus().equals(ACTIVE)) //already paid this payment
+            throw new Exception();
 
         if (selectedLoan.getStatus().equals(ACTIVE)) {
             activeLoans.get(loanId).pay(selectedLoan.getOnePaymentAmount(), selectedLoan.getCapitalPart(), selectedLoan.getInterestPart(), time);
@@ -287,16 +285,27 @@ public class BankImpl implements Bank {
     public void payAllLoan(LoanDTO selectedLoan){
         double totalCapitalRemaining = selectedLoan.getTotalCapitalRemaining();
         double totalInterestRemaining = selectedLoan.getTotalInterestRemaining();
-        double totalAmountRemaining = totalCapitalRemaining + totalInterestRemaining;
+        //double totalAmountRemaining = totalCapitalRemaining + totalInterestRemaining;
+        double totalAmountPaid = getTotalAmountPaid(selectedLoan);
+        double totalNeedToPay = selectedLoan.getOnePaymentAmount() * (selectedLoan.getTotalYazTime() / selectedLoan.getPaysEveryYaz());
+
         Loan.Status prevStatus = selectedLoan.getStatus();
 
         if (selectedLoan.getStatus().equals(ACTIVE))
-            activeLoans.get(selectedLoan.getId()).pay(totalAmountRemaining, totalCapitalRemaining, totalInterestRemaining, time);
+            activeLoans.get(selectedLoan.getId()).pay(totalNeedToPay - totalAmountPaid, totalCapitalRemaining, totalInterestRemaining, time);
         else
-            inRiskLoans.get(selectedLoan.getId()).pay(totalAmountRemaining + selectedLoan.getDebt(),totalCapitalRemaining, totalInterestRemaining, time);
+            inRiskLoans.get(selectedLoan.getId()).pay(totalNeedToPay - totalAmountPaid + selectedLoan.getDebt(),totalCapitalRemaining, totalInterestRemaining, time);
 
         checkIfLoanFinished(prevStatus, selectedLoan.getId());
     }
+
+    private double getTotalAmountPaid(LoanDTO selectedLoan) {
+        double res = 0;
+        for (PaymentDTO paymentDTO: selectedLoan.getPayments().values())
+            res += paymentDTO.getTotalAmount();
+        return res;
+    }
+
     public void payDebt(LoanDTO selectedLoan, double amount){
         Loan loan = inRiskLoans.get(selectedLoan.getId());
         if(loan.getOwner().withdrawal(Math.min(amount, selectedLoan.getDebt()), time)) {
