@@ -65,6 +65,8 @@ public class LoansController {
         totalTimeCol.setCellValueFactory(new PropertyValueFactory<>("totalYazTime"));
         paymentsMarginCol.setCellValueFactory(new PropertyValueFactory<>("paysEveryYaz"));
 
+        loansDetails.getStyleClass().add("my");
+
     }
     public void displayLoans(List<LoanDTO> loans){
         loansDetails.getChildren().clear();

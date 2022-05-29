@@ -201,9 +201,10 @@ public class Loan {
         int numberOfUnpaidPayments= getNumberOfUnpaidPayments();
 
         if(payments.containsKey(time))
-            payments.get(time).addToTotalAmount(amount);
+            payments.get(time).addToPayment(amount - getInterestPart() / capital * amount, getInterestPart() / capital * amount,  amount, IN_RISK);
         else
-            payments.put(time, new Payment(time, numberOfUnpaidPayments * getCapitalPart(), numberOfUnpaidPayments * getInterestPart(),  amount, IN_RISK));
+            payments.put(time, new Payment(time, amount - getInterestPart() / capital * amount, getInterestPart() / capital * amount,  amount, IN_RISK));
+        //payments.put(time, new Payment(time, numberOfUnpaidPayments * getCapitalPart(), numberOfUnpaidPayments * getInterestPart(),  amount, IN_RISK));
 
         payInvestors(amount, time);
 
@@ -211,7 +212,5 @@ public class Loan {
 
         if(debt == 0)
             status = ACTIVE;
-
-
     }
 }

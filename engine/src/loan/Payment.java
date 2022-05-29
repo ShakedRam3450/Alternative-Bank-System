@@ -39,10 +39,6 @@ public class Payment {
         return time;
     }
 
-    public void addToTotalAmount(double amount){
-        totalAmount += amount;
-    }
-
     public Loan.Status getStatus() {
         return status;
     }

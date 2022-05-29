@@ -276,4 +276,24 @@ public class MainController {
         customerBodyComponentController.setCustomer(bank.getCustomers().get(selectedLoan.getOwnerName()));
         adminBodyComponentController.displayInfo(bank.getLoans(), bank.getCustomers());
     }
+
+    public void changeSkin(String skin) {
+        Scene scene =  primaryStage.getScene();
+        scene.getStylesheets().clear();
+        switch (skin) {
+            case "default":
+               scene.getStylesheets().add(
+                        getClass().getResource("main.css").toExternalForm());
+                break;
+            case "ugly watermelon":
+                scene.getStylesheets().add(
+                        getClass().getResource("uglyWatermelon.css").toExternalForm());
+                break;
+            case "yala beytar":
+                scene.getStylesheets().add(
+                        getClass().getResource("yalaBeytar.css").toExternalForm());
+                break;
+        }
+
+    }
 }

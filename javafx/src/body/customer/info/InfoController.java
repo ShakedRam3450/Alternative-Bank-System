@@ -59,6 +59,8 @@ public class InfoController {
         balanceBeforeCol.setCellValueFactory(new PropertyValueFactory<>("balanceBefore"));
         balanceAfterCol.setCellValueFactory(new PropertyValueFactory<>("balanceAfter"));
         typeCol.setCellValueFactory(new PropertyValueFactory<>("transferType"));
+
+
     }
     @FXML
     public void charge(ActionEvent event) {

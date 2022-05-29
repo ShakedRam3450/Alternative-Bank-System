@@ -34,7 +34,7 @@ public class HeaderController {
         time.setText("1");
 
         skinCB.setValue("default");
-        skinCB.getItems().addAll("default", "cool", "veryCool");
+        skinCB.getItems().addAll("default", "ugly watermelon", "yala beytar");
 
     }
 
@@ -42,9 +42,12 @@ public class HeaderController {
         this.mainController = mainController;
     }
 
-   @FXML
+    @FXML
     void switchUser(ActionEvent event) throws IOException {
         mainController.changeUser(userCB.getValue());
+    }
+    @FXML void switchSkin(ActionEvent event){
+        mainController.changeSkin(skinCB.getValue());
     }
     public void initCustomers(Map<String, CustomerDTO> customers){
         ObservableList<String> userCBList = userCB.getItems();

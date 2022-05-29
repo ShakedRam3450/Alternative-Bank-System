@@ -298,14 +298,12 @@ public class BankImpl implements Bank {
 
         checkIfLoanFinished(prevStatus, selectedLoan.getId());
     }
-
     private double getTotalAmountPaid(LoanDTO selectedLoan) {
         double res = 0;
         for (PaymentDTO paymentDTO: selectedLoan.getPayments().values())
             res += paymentDTO.getTotalAmount();
         return res;
     }
-
     public void payDebt(LoanDTO selectedLoan, double amount){
         Loan loan = inRiskLoans.get(selectedLoan.getId());
         if(loan.getOwner().withdrawal(Math.min(amount, selectedLoan.getDebt()), time)) {
