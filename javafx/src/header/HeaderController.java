@@ -34,7 +34,7 @@ public class HeaderController {
         time.setText("1");
 
         skinCB.setValue("default");
-        skinCB.getItems().addAll("default", "ugly watermelon", "yala beytar");
+        skinCB.getItems().addAll("default", "ugly watermelon", "the Beatles");
 
     }
 

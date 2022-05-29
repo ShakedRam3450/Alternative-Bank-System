@@ -12,10 +12,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.GridPane;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import loan.Loan;
 import org.controlsfx.control.CheckComboBox;
@@ -39,6 +36,7 @@ public class ScrambleController {
     @FXML private LoansController loansComponentController;
     @FXML private MasterDetailPane loansComponent;
     @FXML private Label errorLabel;
+    @FXML private VBox vboxBe;
     private int amount;
     private int maxOwnership;
     private CustomerBodyController customerBodyController;
@@ -50,6 +48,7 @@ public class ScrambleController {
     @FXML
     public void initialize(){
         errorLabel.setStyle("-fx-text-fill: red");
+        vboxBe.getStyleClass().add("be2");
     }
     @FXML
     public void scramble(ActionEvent event) {

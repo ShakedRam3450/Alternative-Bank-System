@@ -69,6 +69,12 @@ public class MainController {
         loadAdmin();
         loadCustomer();
         mainComponent.setCenter(adminBodyComponent);
+
+        mainComponent.getStyleClass().add("my");
+        headerComponent.getStylesheets().add("my");
+        adminBodyComponent.getStyleClass().add("my");
+        customerBodyComponent.getStyleClass().add("my");
+
     }
     private void loadAdmin() throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader();
@@ -289,9 +295,9 @@ public class MainController {
                 scene.getStylesheets().add(
                         getClass().getResource("uglyWatermelon.css").toExternalForm());
                 break;
-            case "yala beytar":
+            case "the Beatles":
                 scene.getStylesheets().add(
-                        getClass().getResource("yalaBeytar.css").toExternalForm());
+                        getClass().getResource("theBeatles.css").toExternalForm());
                 break;
         }
 

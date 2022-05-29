@@ -14,9 +14,9 @@
 <?import org.controlsfx.control.CheckComboBox?>
 
 
-<ScrollPane prefWidth="1500.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="body.customer.scramble.ScrambleController">
+<ScrollPane maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="body.customer.scramble.ScrambleController">
    <content>
-      <VBox alignment="CENTER">
+      <VBox fx:id="vboxBe" alignment="CENTER" maxWidth="1.7976931348623157E308">
          <children>
             <GridPane>
               <columnConstraints>
@@ -112,7 +112,7 @@
                   </ProgressBar>
                </children>
             </GridPane>
-            <fx:include fx:id="loansComponent" source="../../loans/loansComponent.fxml" />
+            <fx:include fx:id="loansComponent" prefWidth="1500.0" source="../../loans/loansComponent.fxml" />
             <Button fx:id="sendBTN" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#placementActivation" text="Send">
                <VBox.margin>
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
