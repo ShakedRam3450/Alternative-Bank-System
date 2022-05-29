@@ -198,34 +198,34 @@ public class BankImpl implements Bank {
         int tmpAmountRemaining, index = 0, sumInvested = 0;
         int[] amountForEachLoan;
         List<Loan> realChosenLoans = loanDTOCollectionToRealLoan(chosenLoans);
-
+        double maxOwnershipPercentage = maxOwnership > 0 ? (double) maxOwnership / 100 : 1;
         customers.get(chosenCustomer).addLenderLoans(realChosenLoans);
-
         realChosenLoans.sort(Comparator.comparingInt(Loan::getAmountRemaining));
-        amountForEachLoan = setAmountForEachLoan(numOfLoans, amount, remainder);
 
-        for (Loan loan: realChosenLoans){
-            //if customer has more to invest in this loan than needed
-            if(loan.getAmountRemaining() < amountForEachLoan[index]){
-                amountForEachLoan[index] -= loan.getAmountRemaining();
-                sumInvested += loan.getAmountRemaining();
-                invest(chosenCustomer, loan ,loan.getAmountRemaining());
-                amount = Arrays.stream(amountForEachLoan).sum();
-                numOfLoans--;
-                if(numOfLoans == 0)
-                    break;
-                remainder = amount % numOfLoans;
 
-                amountForEachLoan = setAmountForEachLoan(numOfLoans, amount, remainder);
-                index = 0;
-            }
-            //normal state
-            else{
-                invest(chosenCustomer, loan, amountForEachLoan[index]);
-                sumInvested += amountForEachLoan[index];
-                amountForEachLoan[index] = 0;
-                index++;
-            }
+            amountForEachLoan = setAmountForEachLoan(numOfLoans, amount, remainder);
+            for (Loan loan: realChosenLoans){
+                //if customer has more to invest in this loan than needed
+                if(loan.getAmountRemaining() < amountForEachLoan[index]){
+                    amountForEachLoan[index] -= loan.getAmountRemaining();
+                    sumInvested += (int) Math.min(loan.getAmountRemaining(), maxOwnershipPercentage*loan.getCapital());
+                    invest(chosenCustomer, loan , (int) Math.min(loan.getAmountRemaining(), maxOwnershipPercentage*loan.getCapital()));
+                    amount = Arrays.stream(amountForEachLoan).sum();
+                    numOfLoans--;
+                    if(numOfLoans == 0)
+                        break;
+                    remainder = amount % numOfLoans;
+
+                    amountForEachLoan = setAmountForEachLoan(numOfLoans, amount, remainder);
+                    index = 0;
+                }
+                //normal state
+                else{
+                    invest(chosenCustomer, loan, (int) Math.min(amountForEachLoan[index], maxOwnershipPercentage * loan.getCapital()));
+                    sumInvested += (int) Math.min(amountForEachLoan[index], maxOwnershipPercentage * loan.getCapital());
+                    amountForEachLoan[index] = 0;
+                    index++;
+                }
         }
         withdrawal(chosenCustomer, sumInvested);
     }
@@ -272,7 +272,7 @@ public class BankImpl implements Bank {
         Loan.Status prevStatus = selectedLoan.getStatus();
 
         if (selectedLoan.getLastPaymentTime() == time && activeLoans.get(loanId).getLastPaymentStatus().equals(ACTIVE)) //already paid this payment
-            throw new Exception();
+            throw new PaymentException("you already paid this payment");
 
         if (selectedLoan.getStatus().equals(ACTIVE)) {
             activeLoans.get(loanId).pay(selectedLoan.getOnePaymentAmount(), selectedLoan.getCapitalPart(), selectedLoan.getInterestPart(), time);

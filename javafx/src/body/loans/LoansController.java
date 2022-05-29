@@ -95,7 +95,7 @@ public class LoansController {
                 break;
             case PENDING:
                 res.append(investorsDisplay(loan));
-                res.append("Amount raised: ").append(loan.getAmountRaised()).append("Amount remaining: ").append(loan.getAmountRemaining()).append("\n");
+                res.append("Amount raised: ").append(loan.getAmountRaised()).append(" ").append("Amount remaining: ").append(loan.getAmountRemaining()).append("\n");
                 break;
             case ACTIVE:
                 res.append(investorsDisplay(loan));

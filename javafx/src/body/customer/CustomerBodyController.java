@@ -6,6 +6,7 @@ import body.customer.scramble.ScrambleController;
 import dto.CustomerDTO;
 import dto.LoanDTO;
 import dto.NotificationDTO;
+import exceptions.PaymentException;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
@@ -16,6 +17,7 @@ import javafx.scene.control.Label;
 import loan.Loan;
 import main.MainController;
 import resources.Resources;
+import ui.exceptions.OutOfRangeException;
 
 import java.io.IOException;
 import java.net.URL;
@@ -112,5 +114,18 @@ public class CustomerBodyController {
 
     public void payDebt(LoanDTO selectedLoan, double amount) {
         mainController.payDebt(selectedLoan, amount);
+    }
+
+    public String getErrorMessage(Exception e) {
+        Class <?> exceptionType = e.getClass();
+
+        if(exceptionType == OutOfRangeException.class)
+            return e.toString();
+        else if(exceptionType == NumberFormatException.class)
+            return "String was entered";
+        else if(exceptionType == PaymentException.class)
+            return e.toString();
+
+        return null;
     }
 }

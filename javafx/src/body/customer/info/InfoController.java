@@ -18,7 +18,9 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.controlsfx.control.MasterDetailPane;
+import ui.exceptions.OutOfRangeException;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +45,7 @@ public class InfoController {
     @FXML private TextField amountTF;
     @FXML private Button chargeBTN;;
     @FXML private Button withdrawBTN;
+    @FXML private Label errorLabel;
 
     private CustomerDTO customer;
 
@@ -60,17 +63,24 @@ public class InfoController {
         balanceAfterCol.setCellValueFactory(new PropertyValueFactory<>("balanceAfter"));
         typeCol.setCellValueFactory(new PropertyValueFactory<>("transferType"));
 
+        errorLabel.setText("");
+        errorLabel.setStyle("-fx-text-fill: red");
 
     }
     @FXML
     public void charge(ActionEvent event) {
         try{
             double amount = Double.parseDouble(amountTF.getText());
+
+            if(amount < 0)
+                throw new OutOfRangeException();
+
             customerBodyController.charge(amount);
+            errorLabel.setText("");
 
         }
         catch (Exception e){
-            System.out.println("not double");
+            errorLabel.setText(customerBodyController.getErrorMessage(e));
         }
         finally {
             amountTF.setText("");
@@ -80,15 +90,21 @@ public class InfoController {
     public void withdraw(ActionEvent event) {
         try{
             double amount = Double.parseDouble(amountTF.getText());
+
+            if(amount < 0)
+                throw new OutOfRangeException();
+
             customerBodyController.withdraw(amount);
+            errorLabel.setText("");
         }
         catch (Exception e){
-            System.out.println("not double");
+            errorLabel.setText(customerBodyController.getErrorMessage(e));
         }
         finally {
             amountTF.setText("");
         }
     }
+
     private void transfersDisplay(Map<Integer, List<TransferDTO>> transfers){
         transactionsTable.getColumns().clear();
         ObservableList<TransferDTO> transfersData = FXCollections.observableArrayList();

@@ -5,6 +5,7 @@ import body.loans.LoansController;
 import dto.CustomerDTO;
 import dto.LoanDTO;
 import dto.NotificationDTO;
+import exceptions.PaymentException;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -64,6 +65,8 @@ public class PaymentController {
         onePaymentRBTN.setSelected(true);
         payDebtTF.editableProperty().bind(payDebtRBTN.selectedProperty());
 
+        errorLabel.setStyle("-fx-text-fill: red");
+        errorLabel.setText("");
     }
     @FXML
     public void pay(ActionEvent event){
@@ -73,28 +76,27 @@ public class PaymentController {
             int curTime = customerBodyController.getTime();
 
             if (selectedBTN == onePaymentRBTN){
-                if(!selectedLoan.isTimeToPay(curTime)) //not time to pay
-                    throw new Exception();
+                if(!selectedLoan.isTimeToPay(curTime)) //not time to pay exception
+                    throw new PaymentException("not time to pay");
 
-                customerBodyController.payOnePayment(selectedLoan); // throws exception
+                customerBodyController.payOnePayment(selectedLoan); // already paid this payment exception
             }
             else if (selectedBTN == payAllLoanRBTN){
 
                 customerBodyController.payAllLoan(selectedLoan);
             }
             else if (selectedBTN == payDebtRBTN){
-                if(!selectedLoan.getStatus().equals(Loan.Status.IN_RISK))
-                    throw new Exception();
+                if(!selectedLoan.getStatus().equals(Loan.Status.IN_RISK)) //not in risk exception
+                    throw new PaymentException("loan is not in debt");
                 double amount = getAmount();
                 payDebtTF.setText("");
                 customerBodyController.payDebt(selectedLoan, amount);
             }
-            else
-                throw new Exception();
+
+            errorLabel.setText("");
 
         }catch (Exception e){
-            errorLabel.setText("error");
-            System.out.println("error");
+            errorLabel.setText(customerBodyController.getErrorMessage(e));
         }
 
     }
@@ -113,7 +115,7 @@ public class PaymentController {
     private LoanDTO getSelectedLoan() throws Exception {
         List<LoanDTO> selectedLoans = loansComponentController.getSelectedLoans();
         if(selectedLoans.size() != 1)
-            throw new Exception();
+            throw new PaymentException("you need to choose 1 loan");
         return selectedLoans.get(0);
     }
 
