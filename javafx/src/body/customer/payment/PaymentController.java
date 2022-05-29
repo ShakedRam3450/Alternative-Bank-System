@@ -15,6 +15,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 import loan.Loan;
 import org.controlsfx.control.MasterDetailPane;
+import ui.exceptions.OutOfRangeException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -89,6 +90,10 @@ public class PaymentController {
                 if(!selectedLoan.getStatus().equals(Loan.Status.IN_RISK)) //not in risk exception
                     throw new PaymentException("loan is not in debt");
                 double amount = getAmount();
+                if(amount > customerBodyController.getCustomer().getBalance())
+                    throw new PaymentException("you dont that much money");
+                else if (amount < 0)
+                    throw new OutOfRangeException();
                 payDebtTF.setText("");
                 customerBodyController.payDebt(selectedLoan, amount);
             }
@@ -101,14 +106,9 @@ public class PaymentController {
 
     }
 
-    private double getAmount() {
+    private double getAmount() throws Exception {
         double res = 0;
-        try {
-            res = Double.parseDouble(payDebtTF.getText());
-
-        }catch (Exception e){
-            System.out.println("not double");
-        }
+        res = Double.parseDouble(payDebtTF.getText());
         return res;
     }
 

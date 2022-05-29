@@ -199,12 +199,11 @@ public class Loan {
     }
     public void payDebt(double amount, int time) {
         int numberOfUnpaidPayments= getNumberOfUnpaidPayments();
-
+        double curInterest = (double) interestPerPayment / 100 * amount;
         if(payments.containsKey(time))
-            payments.get(time).addToPayment(amount - getInterestPart() / capital * amount, getInterestPart() / capital * amount,  amount, IN_RISK);
+            payments.get(time).addToPayment(amount - curInterest, curInterest, amount, IN_RISK);
         else
-            payments.put(time, new Payment(time, amount - getInterestPart() / capital * amount, getInterestPart() / capital * amount,  amount, IN_RISK));
-        //payments.put(time, new Payment(time, numberOfUnpaidPayments * getCapitalPart(), numberOfUnpaidPayments * getInterestPart(),  amount, IN_RISK));
+            payments.put(time, new Payment(time, amount - curInterest, curInterest,  amount, IN_RISK));
 
         payInvestors(amount, time);
 

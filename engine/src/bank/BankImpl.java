@@ -298,12 +298,6 @@ public class BankImpl implements Bank {
 
         checkIfLoanFinished(prevStatus, selectedLoan.getId());
     }
-    private double getTotalAmountPaid(LoanDTO selectedLoan) {
-        double res = 0;
-        for (PaymentDTO paymentDTO: selectedLoan.getPayments().values())
-            res += paymentDTO.getTotalAmount();
-        return res;
-    }
     public void payDebt(LoanDTO selectedLoan, double amount){
         Loan loan = inRiskLoans.get(selectedLoan.getId());
         if(loan.getOwner().withdrawal(Math.min(amount, selectedLoan.getDebt()), time)) {
@@ -314,8 +308,14 @@ public class BankImpl implements Bank {
                 inRiskLoans.remove(loan.getId());
             }
         }
-        else
-            System.out.println("amount is bigger than balance");
+        /*else
+            System.out.println("amount is bigger than balance");*/
+    }
+    private double getTotalAmountPaid(LoanDTO selectedLoan) {
+        double res = 0;
+        for (PaymentDTO paymentDTO: selectedLoan.getPayments().values())
+            res += paymentDTO.getTotalAmount();
+        return res;
     }
     private void checkIfLoanFinished(Loan.Status prevStatus, String loanId) {
         if(prevStatus.equals(ACTIVE)){
