@@ -10,13 +10,16 @@ import exceptions.PaymentException;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 import loan.Loan;
 import main.MainController;
 import resources.Resources;
+import task.ScrambleTask;
 import ui.exceptions.OutOfRangeException;
 
 import java.io.IOException;
@@ -128,4 +131,15 @@ public class CustomerBodyController {
 
         return null;
     }
+
+    /*public void bindForTask(Task<List<LoanDTO>> task) {
+        scrambleComponentController.bindForTask(task);
+    }
+    public Label getTaskLabel() {
+        return scrambleComponentController.getTaskLabel();
+    }
+
+    public ProgressBar getTaskProgressBar() {
+        return scrambleComponentController.getTaskProgressBar();
+    }*/
 }

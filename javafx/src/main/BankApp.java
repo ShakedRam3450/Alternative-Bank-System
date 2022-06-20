@@ -34,7 +34,7 @@ public class BankApp extends Application {
         Scene scene = new Scene(root);
 
         scene.getStylesheets().add(
-                getClass().getResource("main.css").toExternalForm());
+                getClass().getResource("/main/main.css").toExternalForm());
 
 
         primaryStage.setScene(scene);

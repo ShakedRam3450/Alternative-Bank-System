@@ -5,13 +5,11 @@ import body.loans.LoansController;
 import dto.LoanDTO;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import loan.Loan;
@@ -19,6 +17,7 @@ import org.controlsfx.control.CheckComboBox;
 import org.controlsfx.control.MasterDetailPane;
 import resources.Resources;
 import sun.plugin2.util.ColorUtil;
+import task.ScrambleTask;
 import ui.exceptions.OutOfRangeException;
 
 import java.util.Collection;
@@ -42,6 +41,9 @@ public class ScrambleController {
     private CustomerBodyController customerBodyController;
     private boolean isFilterMade;
 
+    /*@FXML private Label taskLabel;
+    @FXML private ProgressBar taskProgressBar;*/
+
     public ScrambleController(){
         isFilterMade = false;
     }
@@ -49,6 +51,8 @@ public class ScrambleController {
     public void initialize(){
         errorLabel.setStyle("-fx-text-fill: red");
         vboxBe.getStyleClass().add("be2");
+        //taskLabel.setText("not loaded yet");
+
     }
     @FXML
     public void scramble(ActionEvent event) {
@@ -95,6 +99,14 @@ public class ScrambleController {
         }
     }
 
+   /* public Label getTaskLabel() {
+        return taskLabel;
+    }
+
+    public ProgressBar getTaskProgressBar() {
+        return taskProgressBar;
+    }*/
+
     private void cleanFields() {
         amountTF.clear();
         interestTF.clear();
@@ -135,4 +147,9 @@ public class ScrambleController {
         loansComponentController.displayLoans(eligibleLoans);
         loansComponentController.addSelectCol();
     }
+
+   /* public void bindForTask(Task<List<LoanDTO>> task) {
+        taskLabel.textProperty().bind(task.messageProperty());
+        taskProgressBar.progressProperty().bind(task.progressProperty());
+    }*/
 }

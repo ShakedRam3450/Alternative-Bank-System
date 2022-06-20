@@ -12,6 +12,7 @@ import header.HeaderController;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
@@ -25,6 +26,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import resources.Resources;
+import task.ScrambleTask;
 
 import javax.xml.bind.JAXBException;
 import java.io.File;
@@ -32,6 +34,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 public class MainController {
 
@@ -51,6 +55,8 @@ public class MainController {
     private Bank bank;
     private Stage primaryStage;
     private Map<String, List<NotificationDTO>> customersNotifications ;// key = customer name
+
+    private ScrambleTask currentRunningTask;
 
     public MainController(){
         bank = new BankImpl();
@@ -74,6 +80,7 @@ public class MainController {
         headerComponent.getStylesheets().add("my");
         adminBodyComponent.getStyleClass().add("my");
         customerBodyComponent.getStyleClass().add("my");
+
 
     }
     private void loadAdmin() throws IOException {
@@ -112,7 +119,6 @@ public class MainController {
            addNotifications(needToPayLoans);
        }
     }
-
     private void addNotifications(Map<String, LoanDTO> needToPayLoans) {
         needToPayLoans.forEach((loanId ,loanDTO) -> customersNotifications.get(loanDTO.getOwnerName()).add(new NotificationDTO(loanDTO, time.get())));
     }
@@ -252,7 +258,7 @@ public class MainController {
     public void scramble(CustomerDTO customer, int amount, int minInterest, int minYaz, int maxLoans, int maxOwnership, ObservableList<String> chosenCategories) {
         List<LoanDTO> eligibleLoans = bank.getEligibleLoans(customer, amount, minInterest, minYaz, maxLoans, maxOwnership, chosenCategories);
         customerBodyComponentController.displayEligibleLoans(eligibleLoans);
-   }
+    }
     public Collection<CustomerDTO> getCustomers(){
        return bank.getCustomers().values();
     }
@@ -264,40 +270,36 @@ public class MainController {
     public int getTime() {
         return time.get();
     }
-
     public void payOnePayment(LoanDTO selectedLoan) throws Exception {
         bank.payOnePayment(selectedLoan);
         customerBodyComponentController.setCustomer(bank.getCustomers().get(selectedLoan.getOwnerName()));
         adminBodyComponentController.displayInfo(bank.getLoans(), bank.getCustomers());
     }
-
     public void payAllLoan(LoanDTO selectedLoan) {
         bank.payAllLoan(selectedLoan);
         customerBodyComponentController.setCustomer(bank.getCustomers().get(selectedLoan.getOwnerName()));
         adminBodyComponentController.displayInfo(bank.getLoans(), bank.getCustomers());
     }
-
     public void payDebt(LoanDTO selectedLoan, double amount) {
         bank.payDebt(selectedLoan, amount);
         customerBodyComponentController.setCustomer(bank.getCustomers().get(selectedLoan.getOwnerName()));
         adminBodyComponentController.displayInfo(bank.getLoans(), bank.getCustomers());
     }
-
     public void changeSkin(String skin) {
         Scene scene =  primaryStage.getScene();
         scene.getStylesheets().clear();
         switch (skin) {
             case "default":
                scene.getStylesheets().add(
-                        getClass().getResource("main.css").toExternalForm());
+                        getClass().getResource("/main/main.css").toExternalForm());
                 break;
             case "ugly watermelon":
                 scene.getStylesheets().add(
-                        getClass().getResource("uglyWatermelon.css").toExternalForm());
+                        getClass().getResource("/main/uglyWatermelon.css").toExternalForm());
                 break;
             case "the Beatles":
                 scene.getStylesheets().add(
-                        getClass().getResource("theBeatles.css").toExternalForm());
+                        getClass().getResource("/main/theBeatles.css").toExternalForm());
                 break;
         }
 
