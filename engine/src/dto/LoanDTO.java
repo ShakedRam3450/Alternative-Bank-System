@@ -23,7 +23,7 @@ public class LoanDTO {
     private double debt; //IN_RISK
     private int endTime; //FINISHED
     private Map<Integer, PaymentDTO> payments; //key = yazTime
-    private CheckBox select;
+    //private CheckBox select;
 
     public LoanDTO(Loan loan){
         this.id = loan.getId();
@@ -42,12 +42,12 @@ public class LoanDTO {
         this.debt = loan.getDebt();
         investorsToInvestorsDTO(loan.getInvestors());
         paymentsToPaymentsDTO(loan.getPayments());
-        this.select = new CheckBox();
+        //this.select = new CheckBox();
     }
 
-    public CheckBox getSelect() {
+  /*  public CheckBox getSelect() {
         return select;
-    }
+    }*/
 
     private void investorsToInvestorsDTO(Map<String, Investor> originalInvestors){
         Map<String, InvestorDTO> res = new HashMap<>();

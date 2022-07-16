@@ -1,23 +1,12 @@
 import bank.Bank;
 import bank.BankImpl;
-import com.sun.org.apache.xerces.internal.util.Status;
-import customer.Customer;
-import customer.Investor;
 import dto.CustomerDTO;
 import dto.InvestorDTO;
 import dto.LoanDTO;
 import exceptions.*;
-import generated.AbsDescriptor;
-import jdk.internal.org.objectweb.asm.tree.analysis.Analyzer;
-import loan.Loan;
 
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.util.*;
 
 public class Console implements UserInterface{
@@ -107,12 +96,12 @@ public class Console implements UserInterface{
             System.out.println("The allowed categories are: " + exception.getCategories());
         }
 
-        else if(exceptionType == NoSuchCustomerException.class){
+        /*else if(exceptionType == NoSuchCustomerException.class){
             NoSuchCustomerException exception = (NoSuchCustomerException)e;
             System.out.println("There is a customer in a loan that does not exists!");
             System.out.println("The name of the customer: " + exception.getInvalidCustomer());
             System.out.println("The customers that exist: " + exception.getCustomersNames());
-        }
+        }*/
 
         else if(exceptionType == PaymentMarginException.class){
             PaymentMarginException exception = (PaymentMarginException)e;

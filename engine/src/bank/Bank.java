@@ -18,7 +18,7 @@ import java.util.Set;
 public interface Bank {
     boolean isFileExist();
 
-    void readFile(File file) throws FileNotFoundException, FileNotXMLException, JAXBException, NoSuchCategoryException, NoSuchCustomerException, PaymentMarginException, SameCustomerNameException, SameLoanIdException, NegativeTotalYazTimeException, NegativeIntristPerPaymentException, NegativeBalanceException, NegativePaysEveryYazException, NegativeCapitalException;
+    void readFile(File file, String customerName) throws FileNotFoundException, FileNotXMLException, JAXBException, NoSuchCategoryException, PaymentMarginException, SameCustomerNameException, SameLoanIdException, NegativeTotalYazTimeException, NegativeIntristPerPaymentException, NegativeBalanceException, NegativePaysEveryYazException, NegativeCapitalException;
 
     Map<String, CustomerDTO> getCustomers();
 
@@ -32,15 +32,31 @@ public interface Bank {
 
     boolean withdrawal(String chosenCustomer, double amount);
 
-    List<LoanDTO> getEligibleLoans(CustomerDTO customer, int amount, int minInterest, int minYaz, int maxLoans, int maxOwnership, ObservableList<String> chosenCategories);
+    List<LoanDTO> getEligibleLoans(String customerName, int amount, int minInterest, int minYaz, int maxLoans, int maxOwnership, Set<String> chosenCategories);
 
     void placementActivation(String chosenCustomer, List<LoanDTO> chosenLoans, int amount, int maxOwnership);
 
-    Map<String, LoanDTO> timeAdvancement();
+    void timeAdvancement();
 
     void payOnePayment(LoanDTO selectedLoan) throws Exception;
 
     void payAllLoan(LoanDTO selectedLoan);
 
     void payDebt(LoanDTO selectedLoan, double amount);
+
+    boolean getIsAdminLoggedIn();
+
+    void setIsAdminLoggedIn(boolean val);
+
+    void addAdmin(String usernameFromParameter);
+
+    boolean isUserExists(String usernameFromParameter);
+
+    void addCustomer(String usernameFromParameter);
+
+    List<LoanDTO> getCustomerNeedToPayLoans(String customerName);
+
+    void insertNewLoan(String customerName, String id, int capital, String category, int totalYazTime, int paysEveryYaz, int interestPerPayment) throws SameLoanIdException, NoSuchCategoryException, NegativeTotalYazTimeException, NegativeIntristPerPaymentException, NegativePaysEveryYazException, NegativeCapitalException, PaymentMarginException;
+
+    int getVersion();
 }

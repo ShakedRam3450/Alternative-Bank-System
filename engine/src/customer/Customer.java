@@ -59,6 +59,7 @@ public class Customer {
     public boolean withdrawal(double amount, int time){
         if(amount > balance)
             return false;
+
         balance -= amount;
         if(!transfers.containsKey(time))
             transfers.put(time, new ArrayList<>());

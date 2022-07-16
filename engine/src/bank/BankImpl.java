@@ -13,19 +13,20 @@ import dto.LoanDTO;
 import dto.PaymentDTO;
 import exceptions.*;
 import file.FileChecker;
-import generated.AbsCustomer;
 import generated.AbsDescriptor;
 import generated.AbsLoan;
-import javafx.collections.ObservableList;
 import loan.Loan;
-import javax.annotation.Resources;
+
 import javax.xml.bind.JAXBException;
 
 import static loan.Loan.Status.*;
 
 public class BankImpl implements Bank {
     private boolean fileExist;
+    private boolean isAdminLoggedIn;
+    private String adminName;
     private int time;
+    private int version;
     private Map<String, Customer> customers;
     private Map<String, Loan> newLoans;
     private Map<String, Loan> pendingLoans;
@@ -33,10 +34,13 @@ public class BankImpl implements Bank {
     private Map<String, Loan> inRiskLoans;
     private Map<String, Loan> finishedLoans;
     private Set<String> categories;
+    private Map<String, List<Loan>> customerToLoanNeedToPayLoans; //key =customerName
 
     public BankImpl(){
         fileExist = false;
+        isAdminLoggedIn = false;
         time = 1;
+        version = 1;
         categories = new HashSet<String>();
         customers = new HashMap<String, Customer>();
         newLoans = new HashMap<String, Loan>();
@@ -44,6 +48,7 @@ public class BankImpl implements Bank {
         activeLoans = new HashMap<String, Loan>();
         inRiskLoans = new HashMap<String, Loan>();
         finishedLoans = new HashMap<String, Loan>();
+        customerToLoanNeedToPayLoans = new HashMap<>();
     }
     public boolean isFileExist(){
         return fileExist;
@@ -51,21 +56,61 @@ public class BankImpl implements Bank {
     public int getTime(){
         return time;
     }
-    public void readFile(File file) throws FileNotFoundException, FileNotXMLException, JAXBException, NoSuchCategoryException, NoSuchCustomerException, PaymentMarginException, SameCustomerNameException, SameLoanIdException, NegativeTotalYazTimeException, NegativeIntristPerPaymentException, NegativeBalanceException, NegativePaysEveryYazException, NegativeCapitalException {
+    public void insertNewLoan(String customerName, String id, int capital, String category, int totalYazTime, int paysEveryYaz, int interestPerPayment) throws SameLoanIdException, NoSuchCategoryException, NegativeTotalYazTimeException, NegativeIntristPerPaymentException, NegativePaysEveryYazException, NegativeCapitalException, PaymentMarginException {
+        checkId(id);
+        checkCategory(category);
+        checkNumbers(id,capital, totalYazTime, paysEveryYaz, interestPerPayment);
+        newLoans.put(id, new Loan(id,this.customers.get(customerName),category,capital,totalYazTime,paysEveryYaz,interestPerPayment));
+        version++;
+    }
+
+    @Override
+    public int getVersion() {
+        return version;
+    }
+    private void checkNumbers(String id, int capital, int totalYazTime, int paysEveryYaz, int interestPerPayment) throws NegativeCapitalException, NegativeTotalYazTimeException, NegativePaysEveryYazException, NegativeIntristPerPaymentException, PaymentMarginException {
+        if (capital < 0)
+            throw new NegativeCapitalException(id, capital);
+        if (totalYazTime < 0)
+            throw new NegativeTotalYazTimeException(id, totalYazTime);
+        if (paysEveryYaz < 0)
+            throw new NegativePaysEveryYazException(id, paysEveryYaz);
+        if (interestPerPayment < 0)
+            throw new NegativeIntristPerPaymentException(id, interestPerPayment);
+        if(totalYazTime % paysEveryYaz != 0)
+            throw new PaymentMarginException(totalYazTime,paysEveryYaz);
+
+    }
+
+    private void checkCategory(String category) throws NoSuchCategoryException {
+        if(!this.categories.contains(category))
+            throw new NoSuchCategoryException(category, new ArrayList<>(this.categories));
+    }
+
+    private void checkId(String id) throws SameLoanIdException {
+        if(this.newLoans.containsKey(id) || this.pendingLoans.containsKey(id) ||
+                this.inRiskLoans.containsKey(id) || this.finishedLoans.containsKey(id)){
+            throw new SameLoanIdException(id);
+        }
+
+    }
+
+    public void readFile(File file, String customerName) throws FileNotFoundException, FileNotXMLException, JAXBException, NoSuchCategoryException, PaymentMarginException, SameCustomerNameException, SameLoanIdException, NegativeTotalYazTimeException, NegativeIntristPerPaymentException, NegativeBalanceException, NegativePaysEveryYazException, NegativeCapitalException {
+        version++;
         AbsDescriptor absDescriptor = null;
         FileChecker fileChecker = new FileChecker();
         InputStream in = new FileInputStream(file);
         absDescriptor = fileChecker.openFile(in);
         fileChecker.checkXMLContent(absDescriptor);
-        fromJAXBObjToBank(absDescriptor);
+        fromJAXBObjToBank(absDescriptor, customerName);
     }
-    private void fromJAXBObjToBank(AbsDescriptor absDescriptor){
-        cleanMyBank();
+    private void fromJAXBObjToBank(AbsDescriptor absDescriptor, String customerName){
+        //cleanMyBank();
         takeCategories(absDescriptor.getAbsCategories().getAbsCategory());
-        takeCustomers(absDescriptor.getAbsCustomers().getAbsCustomer());
-        takeLoans(absDescriptor.getAbsLoans().getAbsLoan());
-        time = 1;
-        fileExist = true;
+        //takeCustomers(absDescriptor.getAbsCustomers().getAbsCustomer());
+        takeLoans(absDescriptor.getAbsLoans().getAbsLoan(), customerName);
+        //time = 1;
+        //fileExist = true;
     }
     private void cleanMyBank(){
         fileExist = false;
@@ -85,20 +130,10 @@ public class BankImpl implements Bank {
             tmp = tmp.substring(0,1).toUpperCase() + tmp.substring(1);
             this.categories.add(tmp);
         }
-
     }
-    private void takeCustomers(List<AbsCustomer> absCustomers){
-        String tmpName;
-
-        for (AbsCustomer absCustomer: absCustomers){
-            tmpName = absCustomer.getName().trim().toLowerCase();
-            tmpName = tmpName.substring(0,1).toUpperCase() + tmpName.substring(1);
-            this.customers.put(tmpName,new Customer(absCustomer.getAbsBalance(), tmpName));
-        }
-    }
-    private void takeLoans(List<AbsLoan> absLoans){
+    private void takeLoans(List<AbsLoan> absLoans, String customerName){
         for (AbsLoan absLoan: absLoans)
-            newLoans.put(stringShaper(absLoan.getId()),new Loan(stringShaper(absLoan.getId()),this.customers.get(stringShaper(absLoan.getAbsOwner())), stringShaper(absLoan.getAbsCategory()), absLoan.getAbsCapital(),absLoan.getAbsTotalYazTime(), absLoan.getAbsPaysEveryYaz(), absLoan.getAbsIntristPerPayment()));
+            newLoans.put(stringShaper(absLoan.getId()),new Loan(stringShaper(absLoan.getId()),this.customers.get(customerName), stringShaper(absLoan.getAbsCategory()), absLoan.getAbsCapital(),absLoan.getAbsTotalYazTime(), absLoan.getAbsPaysEveryYaz(), absLoan.getAbsIntristPerPayment()));
         for (Loan loan: newLoans.values()){
             loan.getOwner().addBorrowerLoan(loan);
         }
@@ -109,7 +144,7 @@ public class BankImpl implements Bank {
         res = res.substring(0,1).toUpperCase() + res.substring(1);
         return res;
     }
-    public Map<String, CustomerDTO> getCustomers(){
+    public synchronized Map<String, CustomerDTO> getCustomers(){
         Map<String, CustomerDTO> res = new HashMap<>();
         for (Customer customer: customers.values()){
             res.put(customer.getName(), new CustomerDTO(customer));
@@ -117,7 +152,7 @@ public class BankImpl implements Bank {
         return res;
         //return customers;
     }
-    public List<LoanDTO> getLoans() {
+    public synchronized List<LoanDTO> getLoans() {
         List<LoanDTO> res = new ArrayList<>();
         res.addAll(loanCollectionToLoanDTOList(newLoans.values()));
         res.addAll(loanCollectionToLoanDTOList(pendingLoans.values()));
@@ -130,8 +165,10 @@ public class BankImpl implements Bank {
     }
     private List<LoanDTO> loanCollectionToLoanDTOList(Collection<Loan> list){
         List<LoanDTO> res = new ArrayList<>();
-        for (Loan loan: list)
-            res.add(new LoanDTO(loan));
+        if(list != null){
+            for (Loan loan: list)
+                res.add(new LoanDTO(loan));
+        }
         return res;
     }
     private List<Loan> loanDTOCollectionToRealLoan(Collection<LoanDTO> list){
@@ -146,16 +183,18 @@ public class BankImpl implements Bank {
         else
             return pendingLoans.get(loanName);
     }
-    public Set<String> getCategories(){
+    public synchronized Set<String> getCategories(){
         return new HashSet<String>(categories);
     }
-    public void deposit(String chosenCustomer, double amount){
+    public synchronized void deposit(String chosenCustomer, double amount){
         customers.get(chosenCustomer).deposit(amount, time);
+        //version++;
     }
-    public boolean withdrawal(String chosenCustomer, double amount){
+    public synchronized boolean withdrawal(String chosenCustomer, double amount){
+        //version++;
         return customers.get(chosenCustomer).withdrawal(amount, time);
     }
-    public List<LoanDTO> getEligibleLoans(CustomerDTO customer, int amount, int minInterest, int minYaz, int maxLoans, int maxOwnership, ObservableList<String> chosenCategories){
+    public synchronized List<LoanDTO> getEligibleLoans(String customerName, int amount, int minInterest, int minYaz, int maxLoans, int maxOwnership, Set<String> chosenCategories){
         List<Loan> allLoans = new ArrayList<>();
         List<Loan> eligibleLoans;
         /*List<Loan> needToRemove = new ArrayList<>();
@@ -167,7 +206,7 @@ public class BankImpl implements Bank {
         eligibleLoans = allLoans.stream()
                 .filter(tmpLoan -> tmpLoan.getInterestPerPayment() >= minInterest)
                 .filter(tmpLoan -> tmpLoan.getTotalYazTime() >= minYaz)
-                .filter(tmpLoan -> !tmpLoan.getOwner().getName().equals(customer.getName()))
+                .filter(tmpLoan -> !tmpLoan.getOwner().getName().equals(customerName))
                 .filter(tmpLoan -> tmpLoan.getOwner().getNumOfBorrowerLoans() <= maxLoans || maxLoans < 0)
                 .collect(Collectors.toList());
         if (!chosenCategories.isEmpty()){
@@ -194,6 +233,7 @@ public class BankImpl implements Bank {
         return loanCollectionToLoanDTOList(eligibleLoans);
     }
     public void placementActivation(String chosenCustomer, List<LoanDTO> chosenLoans, int amount, int maxOwnership){
+        version++;
         int numOfLoans = chosenLoans.size(), remainder = amount % numOfLoans;
         int tmpAmountRemaining, index = 0, sumInvested = 0;
         int[] amountForEachLoan;
@@ -256,18 +296,29 @@ public class BankImpl implements Bank {
             activeLoans.put(loan.getId(), loan);
         }
     }
-    public Map<String, LoanDTO> timeAdvancement(){
+    public synchronized void timeAdvancement(){
+        version++;
         time++;
         Map<String, Loan> needToPayLoans = getNeedToPayLoans();
-        Map<String, LoanDTO> needToPayLoansDTO = new HashMap<>();
+        //Map<String, LoanDTO> needToPayLoansDTO = new HashMap<>();
 
         checkIfLateToPay();
 
-        needToPayLoans.forEach((k,v) -> needToPayLoansDTO.put(k, new LoanDTO(v)));
-        return needToPayLoansDTO;
+        needToPayLoans.values().forEach((loan) -> {
+            String customerName = loan.getOwner().getName();
+            this.customerToLoanNeedToPayLoans.computeIfAbsent(customerName, k -> new ArrayList<>());
+            this.customerToLoanNeedToPayLoans.get(customerName).add(loan);
+
+        });
+        /*needToPayLoans.forEach((k,v) -> needToPayLoansDTO.put(k, new LoanDTO(v)));
+        return needToPayLoansDTO;*/
 
     }
-    public void payOnePayment(LoanDTO selectedLoan) throws Exception {
+    public synchronized List<LoanDTO> getCustomerNeedToPayLoans(String customerName){
+         return loanCollectionToLoanDTOList(this.customerToLoanNeedToPayLoans.get(customerName));
+    }
+    public synchronized void payOnePayment(LoanDTO selectedLoan) throws Exception {
+        version++;
         String loanId = selectedLoan.getId();
         Loan.Status prevStatus = selectedLoan.getStatus();
 
@@ -282,7 +333,8 @@ public class BankImpl implements Bank {
         }
         checkIfLoanFinished(prevStatus, loanId);
     }
-    public void payAllLoan(LoanDTO selectedLoan){
+    public synchronized void payAllLoan(LoanDTO selectedLoan){
+        version++;
         double totalCapitalRemaining = selectedLoan.getTotalCapitalRemaining();
         double totalInterestRemaining = selectedLoan.getTotalInterestRemaining();
         //double totalAmountRemaining = totalCapitalRemaining + totalInterestRemaining;
@@ -298,7 +350,8 @@ public class BankImpl implements Bank {
 
         checkIfLoanFinished(prevStatus, selectedLoan.getId());
     }
-    public void payDebt(LoanDTO selectedLoan, double amount){
+    public synchronized void payDebt(LoanDTO selectedLoan, double amount){
+        version++;
         Loan loan = inRiskLoans.get(selectedLoan.getId());
         if(loan.getOwner().withdrawal(Math.min(amount, selectedLoan.getDebt()), time)) {
             loan.payDebt(Math.min(amount, selectedLoan.getDebt()), this.time);
@@ -352,32 +405,6 @@ public class BankImpl implements Bank {
 
 
     }
-    /*private void payLoans(Map<Integer, List<Loan>> needToPayLoans, List<Integer> keyList){
-        Loan.Status prevStatus;
-
-        for (Integer key: keyList) {
-            for (Loan loan : needToPayLoans.get(key)) {
-                prevStatus = loan.getStatus();
-                if (!loan.pay(time)) { //ACTIVE -> IN_RISK
-                    if (prevStatus == ACTIVE){
-                        activeLoans.remove(loan.getId());
-                        inRiskLoans.put(loan.getId(), loan);
-                    }
-                }
-                else if (loan.getStatus() == FINISHED) {  //ACTIVE -> FINISHED
-                    if (prevStatus == ACTIVE)
-                        activeLoans.remove(loan.getId());
-                    else //IN_RISK -> FINISHED
-                        inRiskLoans.remove(loan.getId());
-                    finishedLoans.put(loan.getId(), loan);
-                }
-                else if(prevStatus == IN_RISK){ //IN_RISK -> ACTIVE
-                    inRiskLoans.remove(loan.getId());
-                    activeLoans.put(loan.getId(), loan);
-                }
-            }
-        }
-    }*/
     private Map<String, Loan> getNeedToPayLoans(){
         Map<String, Loan> needToPayLoans = new HashMap<>();
 
@@ -394,5 +421,30 @@ public class BankImpl implements Bank {
         return needToPayLoans;
 
     }
+    public synchronized boolean getIsAdminLoggedIn(){
+        return isAdminLoggedIn;
+    }
+    public synchronized void setIsAdminLoggedIn(boolean val){
+        isAdminLoggedIn = true;
+    }
+    public synchronized void addAdmin(String usernameFromParameter){
+        adminName = usernameFromParameter;
+    }
+    public synchronized boolean isUserExists(String usernameFromParameter){
+        if(isAdminLoggedIn)
+            if(usernameFromParameter.equals(adminName))
+                return true;
+
+        for(String name: customers.keySet())
+            if (name.equals(usernameFromParameter))
+                return true;
+
+        return false;
+    }
+    public synchronized void addCustomer(String usernameFromParameter){
+        customers.put(usernameFromParameter, new Customer(0, usernameFromParameter));
+        version++;
+    }
+
 }
 

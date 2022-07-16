@@ -1,14 +1,12 @@
 package file;
 
 import exceptions.*;
-import generated.AbsCustomer;
 import generated.AbsDescriptor;
 import generated.AbsLoan;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -33,21 +31,16 @@ public class FileChecker {
         Unmarshaller u = jc.createUnmarshaller();
         return (AbsDescriptor) u.unmarshal(in);
     }
-    public void checkXMLContent(AbsDescriptor absDescriptor) throws NoSuchCategoryException, NoSuchCustomerException, PaymentMarginException, SameCustomerNameException, SameLoanIdException, NegativeBalanceException, NegativeCapitalException, NegativeTotalYazTimeException, NegativeIntristPerPaymentException, NegativePaysEveryYazException {
+    public void checkXMLContent(AbsDescriptor absDescriptor) throws NoSuchCategoryException, PaymentMarginException, SameCustomerNameException, SameLoanIdException, NegativeBalanceException, NegativeCapitalException, NegativeTotalYazTimeException, NegativeIntristPerPaymentException, NegativePaysEveryYazException {
         List<String> categories = absDescriptor.getAbsCategories().getAbsCategory();
-        List<AbsCustomer> customers = absDescriptor.getAbsCustomers().getAbsCustomer();
+        //List<AbsCustomer> customers = absDescriptor.getAbsCustomers().getAbsCustomer();
         List<AbsLoan> loans = absDescriptor.getAbsLoans().getAbsLoan();
         checkCategories(loans, categories);
-        checkCustomersInLoans(loans, customers);
         checkPayments(loans);
-        checkCustomersNames(customers);
         checkLoansId(loans);
-        checkNumbers(loans, customers);
+        checkNumbers(loans);
     }
-    private void checkNumbers(List<AbsLoan> loans, List<AbsCustomer> customers) throws NegativeBalanceException, NegativeCapitalException, NegativeTotalYazTimeException, NegativePaysEveryYazException, NegativeIntristPerPaymentException {
-        for (AbsCustomer customer: customers)
-            if (customer.getAbsBalance() < 0)
-                throw new NegativeBalanceException(customer.getName().trim(), customer.getAbsBalance());
+    private void checkNumbers(List<AbsLoan> loans) throws NegativeBalanceException, NegativeCapitalException, NegativeTotalYazTimeException, NegativePaysEveryYazException, NegativeIntristPerPaymentException {
 
         for (AbsLoan loan: loans){
             if (loan.getAbsCapital() < 0)
@@ -79,7 +72,7 @@ public class FileChecker {
             counter = 0;
         }
     }
-    private void checkCustomersNames(List<AbsCustomer> customers) throws SameCustomerNameException{
+    /*private void checkCustomersNames(List<AbsCustomer> customers) throws SameCustomerNameException{
         String tmpName;
         int counter = 0;
         List<String> customersNames = new ArrayList<>();
@@ -97,27 +90,27 @@ public class FileChecker {
                 throw new SameCustomerNameException(tmpName);
             counter = 0;
         }
-    }
+    }*/
     private void checkPayments(List<AbsLoan> loans) throws PaymentMarginException{
         for(AbsLoan loan: loans)
             if(loan.getAbsTotalYazTime() % loan.getAbsPaysEveryYaz() != 0)
                 throw new PaymentMarginException(loan.getAbsTotalYazTime(), loan.getAbsPaysEveryYaz());
 
     }
-    private void checkCustomersInLoans(List<AbsLoan> loans, List<AbsCustomer> customers) throws NoSuchCustomerException{
+    /*private void checkCustomersInLoans(List<AbsLoan> loans, List<AbsCustomer> customers) throws NoSuchCustomerException{
         for (AbsLoan loan: loans) {
             if(!isValidCustomer(loan, customers))
                 throw new NoSuchCustomerException(loan.getAbsOwner().trim(), customers);
         }
-    }
-    private boolean isValidCustomer(AbsLoan loan, List<AbsCustomer> customers){
+    }*/
+    /*private boolean isValidCustomer(AbsLoan loan, List<AbsCustomer> customers){
         String loanOwnerName = loan.getAbsOwner().trim();
         for (AbsCustomer customer: customers){
             if (loanOwnerName.equalsIgnoreCase(customer.getName().trim()))
                 return true;
         }
         return false;
-    }
+    }*/
     private void checkCategories(List<AbsLoan> loans, List<String> categories) throws NoSuchCategoryException{
         for (AbsLoan loan: loans){
             if(!isValidCategory(loan, categories))
